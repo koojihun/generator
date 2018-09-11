@@ -1,6 +1,7 @@
 package com.newSystem.Bitcoins;
 
 import com.newSystem.Main;
+import com.newSystem.Settings;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -32,22 +33,21 @@ public class bitcoinServer extends Thread {
             Map <String,String> params = queryToMap(httpExchange.getRequestURI().getQuery());
             String method = params.get("method");
             String pid;
-            String account;
-            String address;
+            String companyAddress;
             String companyName;
             String companyIp;
             switch (Integer.valueOf(method)) {
                 case 0:
                     // method:0 --> import address request.
-                    account = params.get("account");
-                    address = params.get("address");
-                    Main.bitcoinJSONRPCClient.importAddress(address, account, true);
+                    companyName = params.get("companyName");
+                    companyAddress = params.get("companyAddress");
+                    Main.bitcoinJSONRPCClient.importAddress(companyName, companyAddress, true);
                     break;
                 case 1:
                     // method:1 --> send_to_address.
-                    address = params.get("address");
+                    companyAddress = params.get("companyAddress");
                     pid = params.get("pid");
-                    response.append(Main.bitcoinJSONRPCClient.send_to_address(address, pid));
+                    response.append(Main.bitcoinJSONRPCClient.send_to_address(companyAddress, pid));
                     break;
                 case 2:
                     // method:2 --> track_product.
@@ -63,18 +63,28 @@ public class bitcoinServer extends Thread {
                     String tmpIp = getIp(httpExchange);
                     companyIp = tmpIp.substring(tmpIp.indexOf('/') + 1, tmpIp.indexOf(':'));
                     Main.companyIPs.put(companyName, companyIp);
-                    System.out.println("------------<< New Connection >>------------");
-                    System.out.println("company name = " + companyName);
-                    System.out.println("company ip = " + companyIp);
+                    for (Map.Entry<String, String> entry : Main.companyIPs.entrySet())
+                        System.out.println(entry.getKey() + ", " + entry.getValue());
                     break;
                 case 4:
-                    // method:4 --> redirection of request to mover's server.
+                    // method:4 --> redirection of request to the mover.
                     companyName = params.get("companyName");
-                    companyIp = Main.companyIPs.get(companyName);
-                    String mover_url = companyIp + ":9999";
-                    Headers headers = httpExchange.getResponseHeaders();
-                    headers.add("Location", mover_url);
-                    httpExchange.sendResponseHeaders(301, -1);
+                    if (companyName.equals(Settings.companyName)) {
+                        pid = params.get("pid");
+                        companyAddress = params.get("address");
+                        response.append(Main.bitcoinJSONRPCClient.send_to_address(companyAddress, pid));
+                    } else {
+                        companyIp = Main.companyIPs.get(companyName);
+                        pid = params.get("pid");
+                        companyAddress = params.get("address");
+                        String mover_url = companyIp + ":9999/?method=4&pid=" + pid + "&companyName=" + companyName +
+                                "&address=" + companyAddress;
+                        System.out.println(mover_url);
+                        Headers headers = httpExchange.getResponseHeaders();
+                        headers.add("Location", mover_url);
+                        httpExchange.sendResponseHeaders(301, -1);
+                        httpExchange.close();
+                    }
                     break;
                 case 5:
                     // method: 5 --> registration of each middle node.
