@@ -11,8 +11,8 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 
 public class Main {
-    public static TrackingDB db;
     public static HashMap<String, String> companyIPs;
+    public static HashMap<String, String> companyAddresses;
     static public TrackingDB trackingDb;
     static public BitcoinJSONRPCClient bitcoinJSONRPCClient;
 
@@ -22,13 +22,15 @@ public class Main {
         new Settings();
         companyIPs = new HashMap<>();
 
+
+
         MainFrame mainFrame = new MainFrame();
 
         // bincoind 실행 쓰레드
         new Bitcoind(MidPanel.getBitcoindArea()).start();
 
         // DB
-        db = new TrackingDB();
+        trackingDb = new TrackingDB();
 
         // bincoind로 rpc 명령을 전달하는 서버를 돌리는 쓰레드.
         new bitcoinServer().start();

@@ -1,5 +1,9 @@
 package com.newSystem.Bitcoins;
 
+import com.bitcoinClient.krotjson.JSON;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.newSystem.Main;
 import com.newSystem.Settings;
 import com.sun.net.httpserver.Headers;
@@ -11,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -55,7 +60,7 @@ public class bitcoinServer extends Thread {
                     String raw_ip = getIp(httpExchange);
                     String ip = raw_ip.substring(raw_ip.indexOf('/') + 1, raw_ip.indexOf(':'));
                     Main.trackingDb.insert(pid_to_track, ip);
-                    response.append(Main.bitcoinJSONRPCClient.track_product(pid_to_track));
+                    response.append(new Gson().toJson(Main.bitcoinJSONRPCClient.track_product(pid_to_track)));
                     break;
                 case 3:
                     // method:3 --> each company will send their ip address when their program is started.
@@ -75,13 +80,13 @@ public class bitcoinServer extends Thread {
                         response.append(Main.bitcoinJSONRPCClient.send_to_address(companyAddress, pid));
                     } else {
                         companyIp = Main.companyIPs.get(companyName);
+                        companyName = params.get("companyName");
+                        companyAddress = Main.companyAddresses.get(companyName);
                         pid = params.get("pid");
-                        companyAddress = params.get("address");
-                        String mover_url = companyIp + ":9999/?method=4&pid=" + pid + "&companyName=" + companyName +
-                                "&address=" + companyAddress;
-                        System.out.println(mover_url);
-                        Headers headers = httpExchange.getResponseHeaders();
-                        headers.add("Location", mover_url);
+                        String mover_url = "http://" + companyIp + ":9999/?method=4&" + "pid=" + pid + "&companyName=" + companyName
+                                + "&address=" + companyAddress;
+                        Headers map = httpExchange.getResponseHeaders();
+                        map.add("Location", mover_url);
                         httpExchange.sendResponseHeaders(301, -1);
                         httpExchange.close();
                     }
