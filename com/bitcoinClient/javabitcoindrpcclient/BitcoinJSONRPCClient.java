@@ -62,7 +62,8 @@ import static com.bitcoinClient.javabitcoindrpcclient.MapWrapper.mapStr;
  * @author Mikhail Yevchenko m.ṥῥẚɱ.ѓѐḿởύḙ at azazar.com Small modifications by
  * Alessandro Polverini polverini at gmail.com
  */
-public class BitcoinJSONRPCClient implements BitcoindRpcClient {
+public class
+BitcoinJSONRPCClient implements BitcoindRpcClient {
 
     private static final Logger logger = Logger.getLogger(BitcoinJSONRPCClient.class.getCanonicalName());
 
@@ -74,6 +75,7 @@ public class BitcoinJSONRPCClient implements BitcoindRpcClient {
     public BitcoinJSONRPCClient(String rpcuser, String rpcpassword) throws MalformedURLException {
         this(new URL("http://" + rpcuser + ":" + rpcpassword + "@" + "127.0.0.1" + ":" + "8912" + "/"));
     }
+
     public BitcoinJSONRPCClient(String rpcUrl) throws MalformedURLException {
         this(new URL(rpcUrl));
     }
@@ -2166,7 +2168,7 @@ public class BitcoinJSONRPCClient implements BitcoindRpcClient {
     public String gen_new_product(String prodDate, String expDate) {
 
         StringBuffer sb = new StringBuffer();
-        sb.append("{\"prodDate\":\"" + prodDate+"\"");
+        sb.append("{\"prodDate\":\"" + prodDate + "\"");
         sb.append(",\"expDate\":\"" + expDate + "\"}");
         String str = sb.toString();
         return (String) query("gen_new_product", CrippledJavaScriptParser.parseJSExpr(str));
@@ -2229,7 +2231,7 @@ public class BitcoinJSONRPCClient implements BitcoindRpcClient {
         return (String) query("send_to_address", address, pid);
     }
 
-    public java.util.ArrayList<String> send_many(String address, String products){
+    public java.util.ArrayList<String> send_many(String address, String products) {
         return (java.util.ArrayList<String>) query("send_many", address, products);
     }
 

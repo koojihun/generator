@@ -174,10 +174,10 @@ public class DialogDefaultPanel extends JPanel {
                                 "Message", JOptionPane.WARNING_MESSAGE);
                     } else {
                         try {
-                            FileWriter fw = new FileWriter("C:\\Users\\" + Settings.getUserNmae() + "\\AppData\\Roaming\\Bitcoin\\ProductList.txt", true);
+                            FileWriter fw = new FileWriter("C:\\Users\\" + Settings.getUserNmae() + "\\AppData\\Roaming\\Bitcoin\\ProductList.csv", true);
                             for (int cnt = 0; cnt < Integer.valueOf(count); cnt++) {
                                 String tmpPID = bitcoinJSONRPCClient.gen_new_product(prodDate, expDate);
-                                fw.write(tmpPID + "\r\n");
+                                fw.write(tmpPID + "," + prodDate + "," + expDate + "\r\n");
                             }
                             fw.close();
                         } catch (IOException e1) {
@@ -274,6 +274,7 @@ public class DialogDefaultPanel extends JPanel {
                             if (pID == null) {
                                 break;
                             } else {
+                                pID = br.readLine().substring(0,36);
                                 List<Map> track_prouct_Result = bitcoinJSONRPCClient.track_product(pID);
                                 ArrayList<String> tmp;
                                 if (track_prouct_Result.size() != 0) {
