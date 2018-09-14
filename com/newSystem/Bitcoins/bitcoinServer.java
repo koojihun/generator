@@ -41,6 +41,8 @@ public class bitcoinServer extends Thread {
             String companyAddress;
             String companyName;
             String companyIp;
+            String recieverName;
+            String recieverAddress;
             switch (Integer.valueOf(method)) {
                 case 0:
                     // method:0 --> import address request.
@@ -49,21 +51,15 @@ public class bitcoinServer extends Thread {
                     Main.bitcoinJSONRPCClient.importAddress(companyName, companyAddress, true);
                     break;
                 case 1:
-                    // method:1 --> send_to_address.
-                    companyAddress = params.get("companyAddress");
-                    pid = params.get("pid");
-                    response.append(Main.bitcoinJSONRPCClient.send_to_address(companyAddress, pid));
-                    break;
-                case 2:
-                    // method:2 --> track_product.
+                    // method:1 --> track_product.
                     String pid_to_track = params.get("pid");
                     String raw_ip = getIp(httpExchange);
                     String ip = raw_ip.substring(raw_ip.indexOf('/') + 1, raw_ip.indexOf(':'));
                     Main.trackingDb.insert(pid_to_track, ip);
                     response.append(new Gson().toJson(Main.bitcoinJSONRPCClient.track_product(pid_to_track)));
                     break;
-                case 3:
-                    // method:3 --> each company will send their ip address when their program is started.
+                case 2:
+                    // method:2 --> each company will send their ip address when their program is started.
                     companyName = params.get("companyName");
                     String tmpIp = getIp(httpExchange);
                     companyIp = tmpIp.substring(tmpIp.indexOf('/') + 1, tmpIp.indexOf(':'));
@@ -71,28 +67,26 @@ public class bitcoinServer extends Thread {
                     for (Map.Entry<String, String> entry : Main.companyIPs.entrySet())
                         System.out.println(entry.getKey() + ", " + entry.getValue());
                     break;
-                case 4:
-                    // method:4 --> redirection of request to the mover.
+                case 3:
+                    // method:3 --> redirection of request to the mover.
                     companyName = params.get("companyName");
+                    recieverName = params.get("recieverName");
+                    recieverAddress = Main.companyAddresses.get(recieverName);
+                    pid = params.get("pid");
                     if (companyName.equals(Settings.companyName)) {
-                        pid = params.get("pid");
-                        companyAddress = params.get("address");
-                        response.append(Main.bitcoinJSONRPCClient.send_to_address(companyAddress, pid));
+                        response.append(Main.bitcoinJSONRPCClient.send_to_address(recieverAddress, pid));
                     } else {
                         companyIp = Main.companyIPs.get(companyName);
-                        companyName = params.get("companyName");
-                        companyAddress = Main.companyAddresses.get(companyName);
-                        pid = params.get("pid");
                         String mover_url = "http://" + companyIp + ":9999/?method=4&" + "pid=" + pid + "&companyName=" + companyName
-                                + "&address=" + companyAddress;
+                                + "&recieverAddress=" + recieverAddress;
                         Headers map = httpExchange.getResponseHeaders();
                         map.add("Location", mover_url);
                         httpExchange.sendResponseHeaders(301, -1);
                         httpExchange.close();
                     }
                     break;
-                case 5:
-                    // method: 5 --> registration of each middle node.
+                case 4:
+                    // method: 4 --> registration of each middle node.
                     companyName = params.get("companyName");
                     String directorName = params.get("directorName");
                     String directorEmail = params.get("directorEmail");
