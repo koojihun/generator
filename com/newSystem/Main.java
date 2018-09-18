@@ -7,7 +7,9 @@ import com.newSystem.Bitcoins.bitcoinServer;
 import com.newSystem.DB.TrackingDB;
 
 import javax.swing.*;
+import java.io.FileWriter;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
@@ -21,8 +23,7 @@ public class Main {
 
         new Settings();
         companyIPs = new HashMap<>();
-
-
+        companyAddresses = new HashMap<>();
 
         MainFrame mainFrame = new MainFrame();
 
@@ -39,6 +40,20 @@ public class Main {
             bitcoinJSONRPCClient = new BitcoinJSONRPCClient(Settings.getRpcUser(), Settings.getRpcPassword());
         } catch (MalformedURLException e) {
             System.err.println("BitcoinJSONRPCClient Constructor Error");
+        }
+
+        if (Settings.companyAddress == null) {
+            while (Settings.companyAddress == null) {
+                try {
+                    Settings.companyAddress = bitcoinJSONRPCClient.get_new_address(Settings.companyName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            String filePath = "C:\\Users\\" + Settings.getUserNmae() + "\\AppData\\Roaming\\Bitcoin\\bitcoin.conf";
+            FileWriter fw = new FileWriter(filePath, true);
+            fw.write("\ncompanyAddress=" + Settings.companyAddress);
+            fw.close();
         }
     }
 }

@@ -10,7 +10,8 @@ public class Settings {
     static private String userNmae;
     static private String rpcUser;
     static private String rpcPassword;
-    static public String companyName;
+    static public String companyName;    // My Company Name
+    static public String companyAddress; // My Company Address
     static public String directorName;
     static public String directorEmail;
     static public String directorPhone;
@@ -92,6 +93,10 @@ public class Settings {
                 if (s.contains("companyName")) {
                     int equalIndex = s.indexOf('=');
                     companyName = s.substring(equalIndex + 1);
+                }
+                if (s.contains("companyAddress")) {
+                    int equalIndex = s.indexOf('-');
+                    companyAddress = s.substring(equalIndex + 1);
                 }
                 if (s.contains("directorName")) {
                     int equalIndex = s.indexOf('=');

@@ -51,6 +51,7 @@ public class SignUpForm extends JDialog {
         add(mainPanel);
         setVisible(true);
     }
+
     public void makeButtonLine() {
         JPanel targetLine = new JPanel(new LinearLayout(Orientation.HORIZONTAL, 0));
         targetLine.setBackground(Color.WHITE);
@@ -62,6 +63,7 @@ public class SignUpForm extends JDialog {
         signUpBtn.addActionListener(new clickListener());
         mainPanel.add(targetLine, new LinearConstraints().setWeight(1).setLinearSpace(LinearSpace.MATCH_PARENT));
     }
+
     class clickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {

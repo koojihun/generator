@@ -1,9 +1,6 @@
 package com.newSystem.Bitcoins;
 
-import com.bitcoinClient.krotjson.JSON;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.newSystem.Main;
 import com.newSystem.Settings;
 import com.sun.net.httpserver.Headers;
@@ -15,8 +12,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
+import java.util.Set;
 
 
 public class bitcoinServer extends Thread {
@@ -41,14 +39,21 @@ public class bitcoinServer extends Thread {
             String companyAddress;
             String companyName;
             String companyIp;
-            String recieverName;
-            String recieverAddress;
+            String receiverName;
+            String receiverAddress;
             switch (Integer.valueOf(method)) {
                 case 0:
                     // method:0 --> import address request.
                     companyName = params.get("companyName");
                     companyAddress = params.get("companyAddress");
-                    Main.bitcoinJSONRPCClient.importAddress(companyName, companyAddress, true);
+                    Main.companyAddresses.put(companyName, companyAddress);
+                    Set<String> keys = Main.companyAddresses.keySet();
+                    for (String str : keys) {
+                        System.out.println(str);
+                        System.out.println(Main.companyAddresses.get(str));
+                        System.out.println("-------------------------------------------");
+                    }
+                    response.append(Main.bitcoinJSONRPCClient.importAddress(companyName, companyAddress, true));
                     break;
                 case 1:
                     // method:1 --> track_product.
@@ -70,15 +75,15 @@ public class bitcoinServer extends Thread {
                 case 3:
                     // method:3 --> redirection of request to the mover.
                     companyName = params.get("companyName");
-                    recieverName = params.get("recieverName");
-                    recieverAddress = Main.companyAddresses.get(recieverName);
+                    receiverName = params.get("receiverName");
                     pid = params.get("pid");
+                    receiverAddress = Main.companyAddresses.get(receiverName);
                     if (companyName.equals(Settings.companyName)) {
-                        response.append(Main.bitcoinJSONRPCClient.send_to_address(recieverAddress, pid));
+                        response.append(Main.bitcoinJSONRPCClient.send_to_address(receiverAddress, pid));
                     } else {
                         companyIp = Main.companyIPs.get(companyName);
                         String mover_url = "http://" + companyIp + ":9999/?method=4&" + "pid=" + pid + "&companyName=" + companyName
-                                + "&recieverAddress=" + recieverAddress;
+                                + "&receiverAddress=" + receiverAddress;
                         Headers map = httpExchange.getResponseHeaders();
                         map.add("Location", mover_url);
                         httpExchange.sendResponseHeaders(301, -1);
