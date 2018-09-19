@@ -131,8 +131,7 @@ class MenuBar {
                 List<Map> maps = Main.bitcoinJSONRPCClient.get_current_products();
                 for (Map m : maps) {
                     String pid = String.valueOf(m.get("PID"));
-                    String input = "http://166.104.126.21:9999/?method=2&pid=" + pid;
-                    qrMaker.makeQR(pid, input); // file name, content
+                    qrMaker.makeQR(pid, pid); // file name, content
                 }
             }
 

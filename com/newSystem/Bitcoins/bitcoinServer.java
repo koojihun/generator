@@ -14,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 
 import java.util.Map;
-import java.util.Set;
 
 
 public class bitcoinServer extends Thread {
@@ -32,7 +31,7 @@ public class bitcoinServer extends Thread {
     public class  Handler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            StringBuilder response = new StringBuilder();
+            StringBuilder response = new StringBuilder("");
             Map <String,String> params = queryToMap(httpExchange.getRequestURI().getQuery());
             String method = params.get("method");
             String pid;
@@ -46,21 +45,16 @@ public class bitcoinServer extends Thread {
                     // method:0 --> import address request.
                     companyName = params.get("companyName");
                     companyAddress = params.get("companyAddress");
-                    Main.companyAddresses.put(companyName, companyAddress);
-                    Set<String> keys = Main.companyAddresses.keySet();
-                    for (String str : keys) {
-                        System.out.println(str);
-                        System.out.println(Main.companyAddresses.get(str));
-                        System.out.println("-------------------------------------------");
-                    }
-                    response.append(Main.bitcoinJSONRPCClient.importAddress(companyName, companyAddress, true));
+                    Main.companyDB.insertAddress(companyName, companyAddress);
+                    Main.bitcoinJSONRPCClient.importAddress(companyAddress, companyName, true);
+                    response.append("success");
                     break;
                 case 1:
                     // method:1 --> track_product.
                     String pid_to_track = params.get("pid");
                     String raw_ip = getIp(httpExchange);
                     String ip = raw_ip.substring(raw_ip.indexOf('/') + 1, raw_ip.indexOf(':'));
-                    Main.trackingDb.insert(pid_to_track, ip);
+                    Main.trackingDB.insert(pid_to_track, ip);
                     response.append(new Gson().toJson(Main.bitcoinJSONRPCClient.track_product(pid_to_track)));
                     break;
                 case 2:
@@ -69,8 +63,6 @@ public class bitcoinServer extends Thread {
                     String tmpIp = getIp(httpExchange);
                     companyIp = tmpIp.substring(tmpIp.indexOf('/') + 1, tmpIp.indexOf(':'));
                     Main.companyIPs.put(companyName, companyIp);
-                    for (Map.Entry<String, String> entry : Main.companyIPs.entrySet())
-                        System.out.println(entry.getKey() + ", " + entry.getValue());
                     break;
                 case 3:
                     // method:3 --> redirection of request to the mover.
@@ -96,11 +88,7 @@ public class bitcoinServer extends Thread {
                     String directorName = params.get("directorName");
                     String directorEmail = params.get("directorEmail");
                     String directorPhone = params.get("directorPhone");
-                    System.out.println("------------<< New Registration >>------------");
-                    System.out.println(companyName);
-                    System.out.println(directorName);
-                    System.out.println(directorEmail);
-                    System.out.println(directorPhone);
+                    Main.companyDB.insertExceptAddress(companyName, directorName, directorEmail, directorPhone);
             }
             writeResponse(httpExchange, response.toString());
             httpExchange.close();

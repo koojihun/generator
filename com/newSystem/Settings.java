@@ -50,6 +50,7 @@ public class Settings {
                 }
             }
             makeConfFile();
+            Main.companyDB.insertExceptAddress(companyName, directorName, directorEmail, directorPhone);
         } else {
             // bitcoin.conf 파일에서 rpcuser와 rpcpassword를 읽어 오는 함수.
             getRPCUserAndCompanyInfo();
