@@ -24,6 +24,7 @@ package com.bitcoinClient.javabitcoindrpcclient;
 import com.bitcoinClient.krotjson.Base64Coder;
 import com.bitcoinClient.krotjson.CrippledJavaScriptParser;
 import com.bitcoinClient.krotjson.JSON;
+import com.newSystem.Settings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

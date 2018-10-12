@@ -8,6 +8,7 @@ import com.newSystem.DB.CompanyDB;
 import com.newSystem.DB.TrackingDB;
 
 import javax.swing.*;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -56,9 +57,10 @@ public class Main {
                 }
             }
             String filePath = "C:\\Users\\" + Settings.getUserNmae() + "\\AppData\\Roaming\\Bitcoin\\bitcoin.conf";
-            FileWriter fw = new FileWriter(filePath, true);
-            fw.write("\ncompanyAddress=" + Settings.companyAddress);
-            fw.close();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
+            bw.newLine();
+            bw.write("companyAddress=" + Settings.companyAddress);
+            bw.close();
             companyDB.insertAddress(Settings.companyName, Settings.companyAddress);
         }
     }

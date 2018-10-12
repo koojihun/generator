@@ -173,16 +173,22 @@ public class DialogDefaultPanel extends JPanel {
                                 "Please match the format(ex 20180821T101621).",
                                 "Message", JOptionPane.WARNING_MESSAGE);
                     } else {
+                        ArrayList<String> createdPids = new ArrayList<>();
                         try {
-                            FileWriter fw = new FileWriter("C:\\Users\\" + Settings.getUserNmae() + "\\AppData\\Roaming\\Bitcoin\\ProductList.csv", true);
+                            FileWriter fw = new FileWriter("C:\\Users\\" + Settings.getUserNmae() + "\\AppData\\Roaming\\Bitcoin\\ProductList.txt", true);
                             for (int cnt = 0; cnt < Integer.valueOf(count); cnt++) {
                                 String tmpPID = bitcoinJSONRPCClient.gen_new_product(prodDate, expDate);
-                                fw.write(tmpPID + "," + prodDate + "," + expDate + "\r\n");
+                                createdPids.add(tmpPID);
+                                fw.write(tmpPID + "\r\n");
                             }
                             fw.close();
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
+                        bitcoinJSONRPCClient.set_generate();
+                        for (String pid : createdPids)
+                            bitcoinJSONRPCClient.send_to_address(Settings.companyAddress, pid);
+                        bitcoinJSONRPCClient.set_generate();
                         SwingUtilities.getWindowAncestor(clicked).dispose();
                     }
                 } else if (dialog == DIALOG.IMPORTADDRESS) {
@@ -274,7 +280,6 @@ public class DialogDefaultPanel extends JPanel {
                             if (pID == null) {
                                 break;
                             } else {
-                                pID = br.readLine().substring(0,36);
                                 List<Map> track_prouct_Result = bitcoinJSONRPCClient.track_product(pID);
                                 ArrayList<String> tmp;
                                 if (track_prouct_Result.size() != 0) {
@@ -318,6 +323,7 @@ public class DialogDefaultPanel extends JPanel {
                     }
 
                     TrackLocationDialog.getTrackLocationTable().addMouseListener(new MouseListener() {
+                        ProductListDialog cur;
                         @Override
                         public void mouseClicked(MouseEvent e) {
                             if (e.getClickCount() == 2) {
@@ -325,7 +331,11 @@ public class DialogDefaultPanel extends JPanel {
                                 int productIdx = TrackLocationDialog.getTrackLocationTable().getSelectedRow();
                                 String company = TrackLocationDialog.getTrackLocationTable().getValueAt(productIdx, 1).toString();
 
-                                new ProductListDialog();
+                                if (cur != null)
+                                    cur.dispose();
+
+                                cur = new ProductListDialog();
+
                                 ProductListDialog.getUpperPanel().makeNonEmptyLine("Company", company, false);
                                 for (int i = 0; i < mapPID.get(company).size(); i++) {
                                     String[] row = new String[2];

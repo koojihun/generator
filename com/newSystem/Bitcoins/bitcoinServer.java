@@ -74,6 +74,7 @@ public class bitcoinServer extends Thread {
                         response.append(Main.bitcoinJSONRPCClient.send_to_address(receiverAddress, pid));
                     } else {
                         companyIp = Main.companyIPs.get(companyName);
+                        System.out.println(companyIp);
                         String mover_url = "http://" + companyIp + ":9999/?method=4&" + "pid=" + pid + "&companyName=" + companyName
                                 + "&receiverAddress=" + receiverAddress;
                         Headers map = httpExchange.getResponseHeaders();

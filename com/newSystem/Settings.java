@@ -96,7 +96,7 @@ public class Settings {
                     companyName = s.substring(equalIndex + 1);
                 }
                 if (s.contains("companyAddress")) {
-                    int equalIndex = s.indexOf('-');
+                    int equalIndex = s.indexOf('=');
                     companyAddress = s.substring(equalIndex + 1);
                 }
                 if (s.contains("directorName")) {

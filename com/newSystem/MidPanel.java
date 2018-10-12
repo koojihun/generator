@@ -354,13 +354,16 @@ public class MidPanel extends JPanel {
 
                     } else {
                         // 다중 전송.
-                        String products = "";
-                        for (int i = 0; i < selectedRowsIndex.length - 1; i++) {
-                            products = products + productTableModel.getValueAt(selectedRowsIndex[i], 1).toString() + "/";
-                        }
-                        products = products + productTableModel.getValueAt(selectedRowsIndex[selectedRowsIndex.length - 1], 1).toString();
+                        // String products = "";
                         address = addressTextField.getText();
-                        Main.bitcoinJSONRPCClient.send_many(address, products);
+                        for (int i = 0; i < selectedRowsIndex.length; i++) {
+                            String tmpPid = productTableModel.getValueAt(selectedRowsIndex[i], 1).toString();
+                            Main.bitcoinJSONRPCClient.send_to_address(address, tmpPid);
+                            //products = products + productTableModel.getValueAt(selectedRowsIndex[i], 1).toString() + "/";
+                        }
+                        //products = products + productTableModel.getValueAt(selectedRowsIndex[selectedRowsIndex.length - 1], 1).toString();
+                        //address = addressTextField.getText();
+                        //Main.bitcoinJSONRPCClient.send_many(address, products);
                     }
                     // 보낸 상품 table에서 지우기 위해 get_current_products()
                     getCurrentProducts();
